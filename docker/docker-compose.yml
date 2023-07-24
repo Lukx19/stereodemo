@@ -1,0 +1,26 @@
+version: "3.9"
+services:
+  stereodemo-dev:
+    image:
+      stereodemo:dev-0.6
+    container_name:
+      stereodemo-container
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    volumes:
+      - ..:/home/user/workspace/:cached
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    command: bash
+    shm_size: 16gb
+    environment:
+      - DISPLAY
+      - XAUTHORITY=/tmp/.Xauthority
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu, compute, utility, graphics]
+    tty: true

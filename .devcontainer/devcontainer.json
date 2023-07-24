@@ -1,0 +1,23 @@
+{
+    "name": "stereodeomo",
+    "dockerComposeFile": "../docker/docker-compose.yml",
+    "service": "stereodemo-dev",
+    "workspaceFolder": "/home/user/workspace/",
+    "shutdownAction": "stopCompose",
+    "customizations": {
+      "vscode": {
+        "extensions": [
+            "076923.python-image-preview",
+            "cheshirekow.cmake-format",
+            "ms-python.python",
+            "ms-python.vscode-pylance",
+            "njpwerner.autodocstring",
+            "Percy.vscode-numpy-viewer",
+            "eamodio.gitlens",
+            "mhutchie.git-graph",
+            "ms-azuretools.vscode-docker",
+            "vivaxy.vscode-conventional-commits"
+        ]
+      }
+    }
+}
