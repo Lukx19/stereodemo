@@ -12,9 +12,11 @@ import numpy as np
 import cv2
 
 
+
 from . import visualizer
 from . import methods
 
+from .method_cgi_stereo import CGIStereo
 from .method_opencv_bm import StereoBM, StereoSGBM
 from .method_raft_stereo import RaftStereo
 from .method_cre_stereo import CREStereo
@@ -30,7 +32,7 @@ def parse_args():
     parser.add_argument('--oak-output-folder', type=Path, default=None, help='Output folder to save the images grabbed by the OAK camera')
     parser.add_argument('images',
                         help='rectified_left1 rectified_right1 ... [rectified_leftN rectified_rightN]. Load image pairs from disk. You can also specify folders.',
-                        type=Path, 
+                        type=Path,
                         default=None,
                         nargs='*')
     parser.add_argument('--calibration', type=Path, help='Calibration json. If unspecified, it will try to load a stereodemo_calibration.json file in the left image parent folder.', default=None)
@@ -59,12 +61,12 @@ def find_stereo_images_in_dir(dir: Path):
         if len(left) != 0:
             right = [f.parent / f.name.replace('im0', 'im1') for f in left]
             left_files += left
-            right_files += right            
-    
+            right_files += right
+
     return validated_lists()
 
 class FileListSource (visualizer.Source):
-    def __init__(self, file_or_dir_list, calibration=None):        
+    def __init__(self, file_or_dir_list, calibration=None):
         self.left_images_path = []
         self.right_images_path = []
 
@@ -85,7 +87,7 @@ class FileListSource (visualizer.Source):
                     continue
                 self.left_images_path.append(f)
                 self.right_images_path.append(right_f)
-        
+
         self.index = 0
         self.user_provided_calibration_path = calibration
         self.num_pairs = len(self.left_images_path)
@@ -100,7 +102,7 @@ class FileListSource (visualizer.Source):
 
     def get_pair_at_index(self, idx: int) -> methods.InputPair:
         self.index = idx
-        
+
         def load_image(path):
             im =  cv2.imread(str(path), cv2.IMREAD_COLOR)
             assert im is not None
@@ -127,7 +129,7 @@ class FileListSource (visualizer.Source):
                                            left_image.shape[1]/2.0, # cx1
                                            left_image.shape[0]/2.0,
                                            0.075)
-            
+
         right_image_path = self.right_images_path[self.index]
         status = f"{left_image_path} / {right_image_path}"
         return visualizer.InputPair (left_image, load_image(right_image_path), calib, status)
@@ -135,7 +137,7 @@ class FileListSource (visualizer.Source):
     def get_pair_list(self) -> List[str]:
         return [str(f) for f in self.left_images_path]
 
-    def get_next_pair(self):        
+    def get_next_pair(self):
         self.index = (self.index + 1) % self.num_pairs
         return self.get_pair_at_index(self.index)
 
@@ -166,7 +168,8 @@ def main():
         HitnetStereo(config),
         StereoTransformers(config),
         ChangRealtimeStereo(config),
-        DistDepth(config)
+        DistDepth(config),
+        CGIStereo(config),
     ]
 
     if args.images:
@@ -183,7 +186,7 @@ def main():
             sys.exit (1)
         source = FileListSource([datasets_path], args.calibration)
 
-    method_dict = { method.name:method for method in method_list } 
+    method_dict = { method.name:method for method in method_list }
 
     viz = visualizer.Visualizer(method_dict, source)
 
