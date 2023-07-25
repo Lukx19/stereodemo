@@ -19,5 +19,9 @@
             "vivaxy.vscode-conventional-commits"
         ]
       }
-    }
+    },
+    // remove this override if you are not using this devcontainer in Windows WSL
+    // if this override is removed on WSL, then the VSCode overrides DISPLAY with :1 which is invalid
+    // Whatch this issue to disable automatic X and ssh forwarding https://github.com/microsoft/vscode-remote-release/issues/8031
+    "containerEnv": { "DISPLAY": ":0" },
 }
